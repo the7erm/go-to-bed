@@ -14,7 +14,7 @@
                 <?php
                     $elm_id = ent(preg_replace('/(\W)/', '-', $name.'-'.$id));
                 ?>
-                <input type="text" class="cron" name="reminder[<?php 
+                <input type="text" class="cron" id="<?php echo $elm_id; ?>-cron" name="reminder[<?php 
                     eent($name);
                 ?>][<?php eent($id); ?>][cron]" 
                        value='<?php eent($reminder['cron']); ?>' placeholder="Cron event"><br>

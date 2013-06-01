@@ -6,6 +6,14 @@ include_once 'constants.php';
 include_once INC.'security.php';
 include_once INC.'common.php';
 
+if (isset($_GET['msg_for'])) {
+    include_once CLASS_DIR."child.class.php";
+    $children = new AllChildren();
+    $name = $_GET['msg_for'];
+    $children->message_recieved($name, $_GET['id']);
+    exit();
+}
+
 if (isset($_GET['status'])) {
     include_once CLASS_DIR."child.class.php";
     $children = new AllChildren();

@@ -62,23 +62,31 @@
         $("#tabs").tabs();
         $('.date').datepicker();
         $("#accordion").accordion({collapsible: true});
-        $ ('.cron').jqCron({
-            enabled_minute: true,
-            multiple_dom: true,
-            multiple_month: true,
-            multiple_mins: true,
-            multiple_dow: true,
-            multiple_time_hours: true,
-            multiple_time_minutes: true,
-            default_period: 'week',
-            no_reset_button: false,
-            lang: 'en'
+        $('.cron').each(function(obj){
+          var _this = $(this),
+              id = _this.prop('id');
+          if (!id) {
+              return;
+          }
+          $("#"+id).jqCron({
+              enabled_minute: true,
+              multiple_dom: true,
+              multiple_month: true,
+              multiple_mins: true,
+              multiple_dow: true,
+              multiple_time_hours: true,
+              multiple_time_minutes: true,
+              default_period: 'week',
+              no_reset_button: false,
+              lang: 'en'
+          });
         });
+        
       });
     </script>
     <?php
     if (isset($_POST['pword'])) {
       $_POST['pword'] = '***';
     }
-    eent($_POST);
+    // eent($_POST);
     include_once "footer.tpl.php";
