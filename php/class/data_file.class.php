@@ -30,6 +30,10 @@
         }
 
         function write() {
+            if (!is_writeable($this->filename)) {
+                echo "$this->filename is not writeable";
+                exit();
+            }
             $fp = fopen($this->filename, "w");
             fputs($fp, "<?php\n");
             fputs($fp, "include_once 'constants-required.php';\n");

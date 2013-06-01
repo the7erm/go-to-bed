@@ -19,18 +19,25 @@
         }
 
         function create_child($name) {
-            if (!$name) {
-                return;
-            }
             $result = array(
                 'errors' => array(),
                 'status' => 'FAIL'
             );
+
+            if (!$name) {
+                $result['errors']['uname'] = "No name";
+                return $result;
+            }
+            
             if (isset($this->data["$name"])) {
                 $result['errors']["$name"] = 'A child by that name already exists';
                 return $result;
             }
-            $this->data["$name"] = array();
+            $this->data["$name"] = array(
+                'restriction' => array(),
+                'messages' => array(),
+                'reminders' => array()
+            );
             $this->write();
             $result['status'] = 'OK';
             return $result;
@@ -40,12 +47,74 @@
             if (!$name) {
                 return;
             }
-            $this->data["$name"]["$when"] = array(
+
+            if (!isset($this->data["$name"])) {
+                return;
+            }
+
+            if (!isset($this->data["$name"]['restriction'])) {
+                $this->data["$name"]['restriction'] = array();
+            }
+
+            if (!isset($this->data["$name"]['restriction']["$when"])) {
+                $this->data["$name"]['restriction']["$when"] = array();
+            }
+
+            $this->data["$name"]["restriction"]["$when"] = array(
                 'start' => $start,
                 'end' => $end, 
                 'message' => $message
             );
+
             $this->write();
         }
+
+        function send_message($name, $message) {
+            if (!isset($this->data["$name"])) {
+                return;
+            }
+            if (!isset($this->data["$name"]['messages'])) {
+                $this->data["$name"]['messages'] = array();
+            }
+            $id = date('r').'-'.rand();
+            $this->data["$name"]["messages"]["$id"] = $message;
+            $this->write();
+        }
+
+        function message_recieved($name, $id) {
+            unset($this->data["$name"]["messages"]["$id"]);
+            $this->write();
+        }
+
+        function set_reminder($name, $cron, $message, $logout, $full_screen, $id='') {
+            if (!isset($this->data["$name"])) {
+                return;
+            }
+            if (!isset($this->data["$name"]['reminders'])) {
+                $this->data["$name"]['reminders'] = array();
+            }
+            if (!$id || $id == 'new') {
+                $id = date('r').'-'.rand();
+            }
+            $this->data["$name"]["reminders"]["$id"] = array(
+                'cron' => $cron,
+                'message' => $message,
+                'logout' => (bool)$logout,
+                'full_screen' => (bool)$full_screen
+            );
+            $this->write();
+        }
+
+        function set_grounded($name, $until, $message) {
+            if (!isset($this->data["$name"]['grounded'])) {
+                $this->data["$name"]['grounded'] = array();
+            }
+            $this->data["$name"]["grounded"] = array(
+                'until' => $until,
+                'message' => $message
+            );
+            $this->write();
+        }
+
     }
 

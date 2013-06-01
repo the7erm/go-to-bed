@@ -11,7 +11,9 @@ include_once "constants-required.php";
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script type="text/javascript" src="<?php echo JS; ?>jquery-timepicker/jquery.timepicker.js"></script>
+    <script type="text/javascript" src="<?php echo JS; ?>jqCron/src/jqCron.js"></script>
     <link rel="stylesheet" type="text/css" href="<?php echo JS; ?>jquery-timepicker/jquery.timepicker.css" />
+    <link rel="stylesheet" type="text/css" href="<?php echo JS; ?>jqCron/src/jqCron.css" />
     <?php
         if (isset($addional_scripts)) {
             foreach ($addional_scripts as $script) {
@@ -90,7 +92,7 @@ include_once "constants-required.php";
             float:right;
         }
         .date {
-            width:100px;
+            width:120px;
         }
         .time {
             width:100px;
