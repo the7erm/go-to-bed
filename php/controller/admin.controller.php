@@ -4,13 +4,17 @@
     include_once CLASS_DIR."child.class.php";
 
     $children = new AllChildren();
+    $users = new AllUsers();
 
     if (isset($_POST['action'])) {
         if ($_POST['action'] == 'Create Child Account') {
             $children->create_child($_POST['cname']);
         }
         if ($_POST['action'] == 'Create Admin Account') {
+            $result = $users->create_user($_POST['uname'], $_POST['pword'], 
+                                          $_POST['cpword']);
 
+            $errors = $result['errors'];
         }
         if ($_POST['action'] == 'Apply Child Data' || 
             $_POST['action'] == 'Create Child Account') {

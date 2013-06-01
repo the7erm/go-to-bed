@@ -88,5 +88,8 @@
     if (isset($_POST['pword'])) {
       $_POST['pword'] = '***';
     }
+    if (isset($_POST['cpword'])) {
+      $_POST['cpword'] = '***';
+    }
     // eent($_POST);
     include_once "footer.tpl.php";
