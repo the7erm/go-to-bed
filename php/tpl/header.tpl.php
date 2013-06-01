@@ -97,6 +97,10 @@ include_once "constants-required.php";
         .time {
             width:100px;
         }
+        textarea.reminder  {
+            width: 960px;
+            height: 136px;
+        }
     </style>
 </head>
 <body>

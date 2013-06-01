@@ -18,7 +18,7 @@
                     eent($name);
                 ?>][<?php eent($id); ?>][cron]" 
                        value='<?php eent($reminder['cron']); ?>' placeholder="Cron event"><br>
-                <textarea name="reminder[<?php 
+                <textarea class="reminder" name="reminder[<?php 
                     eent($name);
                 ?>][<?php eent($id); ?>][message]" placeholder="Enter Mesage to be displayed"><?php 
                     eent($reminder['message']); 

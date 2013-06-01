@@ -7,17 +7,27 @@ include_once INC.'security.php';
 include_once INC.'common.php';
 
 if (isset($_GET['msg_for'])) {
-    include_once CLASS_DIR."child.class.php";
-    $children = new AllChildren();
-    $name = $_GET['msg_for'];
-    $children->message_recieved($name, $_GET['id']);
+    if (0 === strpos($_SERVER['REMOTE_ADDR'], '10.1.') || 
+        0 === strpos($_SERVER['REMOTE_ADDR'], '192.168.')) {
+        include_once CLASS_DIR."child.class.php";
+        $children = new AllChildren();
+        $name = $_GET['msg_for'];
+        $children->message_recieved($name, $_GET['id']);
+    } else {
+        header('HTTP/1.0 403 Forbidden');
+    }
     exit();
 }
 
 if (isset($_GET['status'])) {
-    include_once CLASS_DIR."child.class.php";
-    $children = new AllChildren();
-    echo json_encode($children->data["{$_GET['status']}"]);
+    if (0 === strpos($_SERVER['REMOTE_ADDR'], '10.1.') || 
+        0 === strpos($_SERVER['REMOTE_ADDR'], '192.168.')) {
+        include_once CLASS_DIR."child.class.php";
+        $children = new AllChildren();
+        echo json_encode($children->data["{$_GET['status']}"]);
+    } else {
+        header('HTTP/1.0 403 Forbidden');
+    }
     exit();
 }
 

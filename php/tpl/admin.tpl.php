@@ -31,15 +31,15 @@
               </table>
             </form>
           </div>
-        <?php
-            $buttons = '<input type="submit" value="Apply" name="submit">';
+          <?php
+              $buttons = '<input type="submit" value="Apply" name="submit">';
 
-            foreach ($children->data as $name=>$child_data) {
-                $actions = '<input type="hidden" name="action" value="Apply Child Data">
-                            <input type="hidden" name="old_name" value="'.ent($name).'">';
-                include TPL."child.form.tpl.php";
-            }
-        ?>
+              foreach ($children->data as $name=>$child_data) {
+                  $actions = '<input type="hidden" name="action" value="Apply Child Data">
+                              <input type="hidden" name="old_name" value="'.ent($name).'">';
+                  include TPL."child.form.tpl.php";
+              }
+          ?>
         </div>
       </div>
       <div id="tabs-2">
@@ -59,9 +59,11 @@
     </div>
     <script type="text/javascript">
       $(function() {
+        
         $("#tabs").tabs();
+        $("#accordion").accordion({collapsible: true, heightStyle: "content"});
         $('.date').datepicker();
-        $("#accordion").accordion({collapsible: true});
+        
         $('.cron').each(function(obj){
           var _this = $(this),
               id = _this.prop('id');
