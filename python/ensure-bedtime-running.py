@@ -3,6 +3,7 @@
 import subprocess
 import re
 import pprint
+import time
 
 pp = pprint.PrettyPrinter(indent=4)
 session_re = re.compile("(Session[0-9]+)\:")
@@ -120,6 +121,8 @@ def start_if_needed():
 
 
 if __name__ == "__main__":
-    start_if_needed()
-    print "done"
+    while True:
+        start_if_needed()
+        time.sleep(60)
+        print ".",
     # pp.pprint(res)
