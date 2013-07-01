@@ -125,7 +125,7 @@ if __name__ == "__main__":
     for i, a in enumerate(sys.argv):
         print "i:",i
         print "a:",a
-        if a == "--users" && len(sys.argv) > i:
+        if a == "--users" and len(sys.argv) > i:
             users = sys.argv[i+1].split(",")
             print "enusre_for:",users
             ensure_for = users
