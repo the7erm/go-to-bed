@@ -4,13 +4,14 @@ import subprocess
 import re
 import pprint
 import time
+import sys
 
 pp = pprint.PrettyPrinter(indent=4)
 session_re = re.compile("(Session[0-9]+)\:")
 var_val_re = re.compile("\t(.*)\s\=\s\'(.*)\'")
 var_val_bool_re = re.compile("\t(.*)\s\=\s(TRUE|FALSE)")
 ps_re = re.compile("(\d+)\s(.*?)\s+(.*)")
-ensure_for = ['erm','sam']
+ensure_for = ['sam', 'halle']
 
 
 def exe(cmd, shell=False):
@@ -121,8 +122,13 @@ def start_if_needed():
 
 
 if __name__ == "__main__":
+    for i, a in sys.argv.items():
+        print "i:",i
+        print "a:",a
+    if "--run-once" in sys.argv:
+        start_if_needed()
+        sys.exit()
     while True:
         start_if_needed()
         time.sleep(60)
         print ".",
-    # pp.pprint(res)
