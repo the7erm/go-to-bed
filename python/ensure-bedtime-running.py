@@ -8,7 +8,8 @@ pp = pprint.PrettyPrinter(indent=4)
 session_re = re.compile("(Session[0-9]+)\:")
 var_val_re = re.compile("\t(.*)\s\=\s\'(.*)\'")
 var_val_bool_re = re.compile("\t(.*)\s\=\s(TRUE|FALSE)")
-ps_re = re.compile("(\d+)\s(.*)")
+ps_re = re.compile("(\d+)\s(.*?)\s+(.*)")
+ensure_for = ['erm','sam']
 
 
 def exe(cmd, shell=False):
@@ -70,18 +71,55 @@ def parse_etc_passwd():
 
     return user_map
 
-def is_go_to_bed_running():
-    output = exe(["ps","-Ao","pid,cmd"])
+def is_go_to_bed_running(ensure_for_users):
+    output = exe(["ps","-Ao","pid,user,cmd"])
     lines = output.split("\n")
+    running_for = []
     for l in lines:
         # print "l:",l
         match = ps_re.match(l)
         if match:
-            pid, cmd = match.groups()
+            pid, user, cmd = match.groups()
+            if user not in ensure_for_users:
+                continue
             if cmd.startswith("/usr/bin/python"):
-                print pid, cmd
+                print pid, user, cmd
+                if "go-to-bed.py" in cmd:
+                    running_for.append(user)
+    return running_for
+
+def start_if_needed():
+    ensure_for_users = []
+    ck_list_sessions = parse_ck_list_sessions()
+    for name, session in ck_list_sessions.items():
+        if not session['is-local'] or not session['x11-display']:
+            continue
+        print "s:",
+        pp.pprint(session)
+        if session['unix-user'] in ensure_for:
+            ensure_for_users.append({
+                'user': session['unix-user'],
+                'x11-display': session['x11-display']
+            })
+
+    if not ensure_for_users:
+        return
+
+    # ensure_for_users = set(ensure_for_users)
+    is_running_for = is_go_to_bed_running(ensure_for_users)
+    for user in ensure_for_users:
+        print "starting for:",user
+        args = [
+            'su',
+            '-',
+            user['user'],
+            '-c',
+            "export DISPLAY='%s';/usr/bin/go-to-bed/python/go_to_bed.py --url 'http://the-erm.com/go-to-bed/'" % user['x11-display']
+        ]
+        subprocess.Popen(args)
+
 
 if __name__ == "__main__":
-    is_go_to_bed_running()
-    res = parse_ck_list_sessions()
+    start_if_needed()
+    print "done"
     # pp.pprint(res)

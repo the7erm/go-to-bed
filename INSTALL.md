@@ -117,7 +117,9 @@ the reminders.
 
 
 
-
+Install needed packages for python
+==================================
+`sudo apt-get install python-dateutil python-tz`
 
 
 

@@ -110,7 +110,10 @@ def connect(url, get={}, post={}):
         response = urllib2.urlopen(req)
     except urllib2.HTTPError, e:
         print "urllib2.HTTPError:",full_url,' ',e
-        return 
+        return {}
+    except urllib2.URLError, e:
+        print "urllib2.URLError:",full_url,' ',e
+        return {}
     the_page = response.read()
     try:
         res = json.loads(the_page)
