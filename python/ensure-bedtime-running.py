@@ -85,7 +85,7 @@ def is_go_to_bed_running(ensure_for_users):
                 continue
             if cmd.startswith("/usr/bin/python"):
                 print pid, user, cmd
-                if "go-to-bed.py" in cmd:
+                if "go_to_bed.py" in cmd:
                     running_for.append(user)
     return running_for
 
