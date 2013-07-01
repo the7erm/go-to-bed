@@ -122,9 +122,14 @@ def start_if_needed():
 
 
 if __name__ == "__main__":
-    for i, a in sys.argv.items():
+    for i, a in enumerate(sys.argv):
         print "i:",i
         print "a:",a
+        if a == "--users" && len(sys.argv) > i:
+            users = sys.argv[i+1].split(",")
+            print "enusre_for:",users
+            ensure_for = users
+
     if "--run-once" in sys.argv:
         start_if_needed()
         sys.exit()
