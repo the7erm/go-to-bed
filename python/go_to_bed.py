@@ -135,9 +135,9 @@ def check_url():
     if not res:
         return
     parse_grounded(res)
-    parse_messages(res, values)
     parse_reminders(res)
     parse_restriction(res)
+    parse_messages(res, values)
 
 def parse_grounded(res):
 
