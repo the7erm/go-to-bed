@@ -115,7 +115,7 @@ def start_if_needed():
             '-',
             user['user'],
             '-c',
-            "export DISPLAY='%s';/usr/bin/go-to-bed/python/go_to_bed.py --url 'http://the-erm.com/go-to-bed/'" % user['x11-display']
+            "export DISPLAY='%s';/usr/bin/go_to_bed.py --url 'http://the-erm.com/go-to-bed/'" % user['x11-display']
         ]
         subprocess.Popen(args)
 
