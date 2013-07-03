@@ -10,7 +10,7 @@
 #
 # /etc/init.d/go-to-bed-init
 #
-USERS="sam,halle,elijah,erm"
+USERS="sam,halle,elijah"
 URL="http://the-erm.com/go-to-bed/"
 
 case "$1" in
