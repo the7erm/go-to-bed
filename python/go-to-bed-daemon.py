@@ -26,6 +26,8 @@ ps_re = re.compile("(\d+)\s(.*?)\s+(.*)")
 ensure_for = ['sam', 'halle', 'elijah']
 URL = "http://localhost/go-to-bed/"
 
+subprocesses = []
+
 def exe(cmd, shell=False):
     try:
         return subprocess.check_output(cmd, shell=shell).strip()
@@ -88,14 +90,17 @@ def is_go_to_bed_running(ensure_for_users):
     output = exe(["ps","-Ao","pid,user,cmd"])
     lines = output.split("\n")
     running_for = []
+    users = []
+    for u in ensure_for_users:
+        users.append(u['user'])
     for l in lines:
-        # print "l:",l
-        match = ps_re.match(l)
+        match = ps_re.search(l)
         if match:
             pid, user, cmd = match.groups()
-            if user not in ensure_for_users:
+            if user not in users:
                 continue
-            if cmd.startswith("/usr/bin/python"):
+
+            if cmd.startswith("/usr/bin/python") or cmd.startswith('python'):
                 if "go-to-bed.py" in cmd:
                     running_for.append(user)
     return running_for
@@ -129,7 +134,13 @@ def start_if_needed():
                /usr/bin/go-to-bed.py --url '%s'
             """ % (user['x11-display'], URL)
         ]
-        subprocess.Popen(args)
+        
+        dev_null = open("/dev/null","rw")
+        subprocesses.append(
+            subprocess.Popen(args, stdin=dev_null, 
+                               stdout=dev_null, 
+                               stderr=dev_null)
+        )
 
 class App():
     def __init__(self):
@@ -152,7 +163,21 @@ class App():
             """
             time.sleep(60)
 
+    def shutdown(self):
+        """Overrides Daemon().shutdown() with some clean up"""
+        print "Stopping Daemon!"
+        for p in subprocesses:
+            print "killing:", p.kill()
+
+
 if __name__ == "__main__":
+    logger = logging.getLogger("go-to-bed")
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler = logging.FileHandler("/var/log/go-to-bed.log")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
     for i, a in enumerate(sys.argv):
         if a == "--users" and len(sys.argv) > i:
             users = sys.argv[i+1].split(",")
@@ -170,12 +195,7 @@ if __name__ == "__main__":
         sys.exit()
 
     app = App()
-    logger = logging.getLogger("go-to-bed")
-    logger.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler = logging.FileHandler("/var/log/go-to-bed.log")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    
 
     daemon_runner = runner.DaemonRunner(app)
     #This ensures that the logger file handle does not get closed during daemonization
