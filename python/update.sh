@@ -15,7 +15,7 @@ fi
 
 echo "=== $CONFIG_FILE contents ==="
 cat "$CONFIG_FILE"
-echo "\n"
+echo -e "\n"
 sudo service go-to-bed stop
 sudo service go-to-bed start
 sudo update-rc.d -f go-to-bed remove
