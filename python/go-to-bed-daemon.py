@@ -189,6 +189,7 @@ if __name__ == "__main__":
 
         if a == "--url" and len(sys.argv) > i:
             URL = sys.argv[i+1]
+            print "URL:",URL
 
     if "--run-once" in sys.argv:
         start_if_needed()
