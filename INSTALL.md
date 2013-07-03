@@ -3,6 +3,12 @@ This system requires a few things to function properly.
 
 I use apache & php.  You could use php & nginx.  It's up to you.
 
+For your convenience I've created an install script.  Called `install.sh`
+
+This will install all the dependencies needed, and copy over the files 
+you need, set up a daemon process that auto starts the notification 
+system.
+
 Install Apache & php
 ====================
 To install apache on a Debian based distro
@@ -19,8 +25,8 @@ sudo cp php/* /var/www/go-to-bed/ -Rv
 sudo chown www-data:www-data /var/www/go-to-bed -Rc
 ```
 
-Or system link it.  I system link because I'm developing but for security reasons
-it's probably better to copy the files over.
+Or system link it.  I system link because I'm developing but for security
+reasons it's probably better to copy the files over.
 
 ```
 sudo ln -s /<wherever your git is>/git/go-to-bed/php/ /var/www/go-to-bed
@@ -64,7 +70,7 @@ Here's how to do that:
 * Save.
 
 You're done.
-Lather rinse repeat.
+Lather rinse repeat. 
 
 There are lots of fun reminders.  Like at 5pm M-F remind them to do their homework.
 Schedule the computer to log them out when they should take a shower.
@@ -74,36 +80,43 @@ Ground Them
 ===========
 Enter the end date/time, and a message.  They will be automatically logged out.
 
-Set up the clients on 1 computer
-================================
-Copy the contents of the python/ folder to /usr/bin/ (or wherever you prefer)
+Install needed packages for python
+==================================
 ```
-sudo cp ./python/* /usr/bin/ -v
-sudo chmod +x /usr/bin/go_to_bed.py
-cp ./sample.desktop ./sample.desktop.bak
-sudo cp ./sample.desktop /home/<child_account>/.config/autostart/go-to-bed.desktop
-sudo chmod o-w /home/<child_account>/.config/autostart/go-to-bed.desktop
+sudo apt-get install python-dateutil python-tz python-lockfile \
+                     python-daemon python-gtk2 python-pip
+
+sudo pip install Crontab pytz
+
 ```
 
-Keep in mind this will not work if your kid is smart.  The script is running as
-them.  They can run a ps -Af | grep go_to_bed.py and kill the pid easily enough.
-If my kids figure that out.  I'll be happy.  Then I'll figure out a way to run
-it as root, and export the DISPLAY=":0", but for now this is good enough.
+Setup the service / client.
+===========================
+The config file for the service is `/etc/go-to-bed.conf`
+```
+USERS="sam,halle,elijah"
+URL="http://localhost/go-to-bed/"
+```
+The USERS variable is the system users you want to enable notifications on.
+The URL is the server you want to query for restrictions.
 
+To make things easy I have made an install script `./install-python.sh`
 
-Set up the clients on multiple computers
-----------------------------------------
-Nutshell version:
-* Copy python/go_to_bed.py to each computer's /usr/bin/ folder.
-* Edit sample.desktop and change --url parameter to reflect the ip/hostname
-  of whatever machine your apache install is on.
-* Copy sample.desktop /home/<child_account>/.config/autostart/go-to-bed.desktop 
-  to each of the children's accounts on the computers they use.
+This will install all the needed python libraries, as well as copy the python 
+files, and init scripts to the proper location.
 
-If you want more in-depth help than this email me. theerm@gmail.com  I'll write
-more docs on it,  but as-is with 0 users.  Going into how to set it up is a
-little more than I'd prefer to go into at this time.  Make sure the subject is
-something like go-to-bed so I'll notice it.
+If you want to setup on multiple computers you'll need to change the hostname 
+`localhost` to whatever the server (where you installed apache & php) ip
+is.  If you run `ifconfig` on your server it will give you the ip address.  
+It  will be in the `inet addr:` field. (127.0.0.1 is localhost)
+It's important to note that the ip address must be static (stays the same) 
+otherwise the script will break.  Setting up a static ip address is beyond the 
+scope of this document.  There are several techniques you can employ to setup a 
+static ip address.  A good place to start is in your router's DHCP reservation 
+list.
+
+If you have multiple computers you'll need to install the client on each of 
+them.
 
 I lost my password
 ==================
@@ -114,12 +127,3 @@ users.data.php.bak and start the setup process all over again.
 
 All the time rules are stored in another file, so you won't have to re-add all
 the reminders.
-
-
-
-Install needed packages for python
-==================================
-`sudo apt-get install python-dateutil python-tz`
-
-
-

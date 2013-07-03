@@ -20,7 +20,7 @@
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
 
-USERS="sam,halle,elijah"
+USERS=""
 URL="http://localhost/go-to-bed/"
 
 if [ -f "/etc/go-to-bed.conf" ]
