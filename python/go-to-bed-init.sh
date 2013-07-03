@@ -20,7 +20,7 @@ fi
 
 case "$1" in
   start)
-    echo "Starting go-to-bed-daemon $URL $USERS"
+    echo "Starting go-to-bed-daemon"
     # Start the daemon 
     python /usr/bin/go-to-bed-daemon.py start --url $URL --users $USERS
     ;;
