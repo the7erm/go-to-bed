@@ -11,11 +11,16 @@
 # /etc/init.d/go-to-bed-init
 #
 USERS="sam,halle,elijah"
-URL="http://the-erm.com/go-to-bed/"
+URL="http://localhost/go-to-bed/"
+
+if [ -f "/etc/go-to-bed.conf" ]
+then
+    . /etc/go-to-bed.conf
+fi
 
 case "$1" in
   start)
-    echo "Starting go-to-bed-daemon"
+    echo "Starting go-to-bed-daemon $URL $USERS"
     # Start the daemon 
     python /usr/bin/go-to-bed-daemon.py start --url $URL --users $USERS
     ;;
