@@ -1,26 +1,37 @@
 #!/usr/bin/env python
+# Parts of this file were blatantly stolen from
+# http://www.gavinj.net/2012/06/building-python-daemon-process.html
+# To kick off the script, run the following from the python directory:
+#   PYTHONPATH=`pwd` python testdaemon.py start
 
+#standard python libs
+import logging
+import time
+import pprint
 import subprocess
 import re
-import pprint
 import time
 import sys
+import os
+import lockfile
+
+#third party libs
+from daemon import runner
 
 pp = pprint.PrettyPrinter(indent=4)
 session_re = re.compile("(Session[0-9]+)\:")
 var_val_re = re.compile("\t(.*)\s\=\s\'(.*)\'")
 var_val_bool_re = re.compile("\t(.*)\s\=\s(TRUE|FALSE)")
 ps_re = re.compile("(\d+)\s(.*?)\s+(.*)")
-ensure_for = ['sam', 'halle']
-
+ensure_for = ['sam', 'halle', 'elijah']
+URL = "http://localhost/go-to-bed/"
 
 def exe(cmd, shell=False):
     try:
         return subprocess.check_output(cmd, shell=shell).strip()
     except subprocess.CalledProcessError, e:
-        print "subprocess.CalledProcessError %s %s" % (e, cmd)
+        logger.error("subprocess.CalledProcessError %s %s" % (e, cmd))
     return ""
-
 
 def parse_ck_list_sessions():
     users = parse_etc_passwd()
@@ -85,8 +96,7 @@ def is_go_to_bed_running(ensure_for_users):
             if user not in ensure_for_users:
                 continue
             if cmd.startswith("/usr/bin/python"):
-                print pid, user, cmd
-                if "go_to_bed.py" in cmd:
+                if "go-to-bed.py" in cmd:
                     running_for.append(user)
     return running_for
 
@@ -96,8 +106,6 @@ def start_if_needed():
     for name, session in ck_list_sessions.items():
         if not session['is-local'] or not session['x11-display']:
             continue
-        print "s:",
-        pp.pprint(session)
         if session['unix-user'] in ensure_for:
             ensure_for_users.append({
                 'user': session['unix-user'],
@@ -110,30 +118,66 @@ def start_if_needed():
     # ensure_for_users = set(ensure_for_users)
     is_running_for = is_go_to_bed_running(ensure_for_users)
     for user in ensure_for_users:
-        print "starting for:",user
+        logger.info("starting for: %s on display %s" % (user, 
+                                                        user['x11-display']))
         args = [
             'su',
             '-',
             user['user'],
             '-c',
-            "export DISPLAY='%s';/usr/bin/go_to_bed.py --url 'http://the-erm.com/go-to-bed/'" % user['x11-display']
+            """export DISPLAY='%s';
+               /usr/bin/go-to-bed.py --url '%s'
+            """ % (user['x11-display'], URL)
         ]
         subprocess.Popen(args)
 
+class App():
+    def __init__(self):
+        self.stdin_path = '/dev/null'
+        self.stdout_path = '/dev/tty'
+        self.stderr_path = '/dev/tty'
+        self.pidfile_path =  '/var/run/go-to-bed.pid'
+        self.pidfile_timeout = 5
+            
+    def run(self):
+        while True:
+            #Main code goes here ...
+            #Note that logger level needs to be set to logging.DEBUG before this shows up in the logs
+            start_if_needed()
+            """
+            logger.debug("Debug message")
+            logger.info("Info message")
+            logger.warn("Warning message")
+            logger.error("Error message")
+            """
+            time.sleep(60)
 
 if __name__ == "__main__":
     for i, a in enumerate(sys.argv):
-        print "i:",i
-        print "a:",a
         if a == "--users" and len(sys.argv) > i:
             users = sys.argv[i+1].split(",")
+            for i, u in enumerate(users):
+                users[i] = u.strip()
+
             print "enusre_for:",users
             ensure_for = users
+
+        if a == "--url" and len(sys.argv) > i:
+            URL = sys.argv[i+1]
 
     if "--run-once" in sys.argv:
         start_if_needed()
         sys.exit()
-    while True:
-        start_if_needed()
-        time.sleep(60)
-        print ".",
+
+    app = App()
+    logger = logging.getLogger("go-to-bed")
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler = logging.FileHandler("/var/log/go-to-bed.log")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    daemon_runner = runner.DaemonRunner(app)
+    #This ensures that the logger file handle does not get closed during daemonization
+    daemon_runner.daemon_context.files_preserve=[handler.stream]
+    daemon_runner.do_action()
