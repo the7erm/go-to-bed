@@ -19,7 +19,7 @@ fi
 echo "=== $CONFIG_FILE contents ==="
 cat "$CONFIG_FILE"
 echo -e "\n"
+sudo update-rc.d -f go-to-bed remove 
+sudo update-rc.d go-to-bed defaults 98 2
 sudo service go-to-bed stop
 sudo service go-to-bed start
-sudo update-rc.d -f go-to-bed remove
-sudo update-rc.d go-to-bed defaults
