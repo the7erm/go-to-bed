@@ -14,6 +14,7 @@ import time
 import sys
 import os
 import lockfile
+import pipes
 
 #third party libs
 from daemon import runner
@@ -99,9 +100,11 @@ def is_go_to_bed_running(ensure_for_users):
             pid, user, cmd = match.groups()
             if user not in users:
                 continue
-
+            logger.info("checking:%s %s", user, cmd)
             if cmd.startswith("/usr/bin/python") or cmd.startswith('python'):
+                logger.info("python:%s", cmd)
                 if "go-to-bed.py" in cmd:
+                    logger.info("running_for:%s %s", user, cmd)                
                     running_for.append(user)
     return running_for
 
@@ -123,17 +126,23 @@ def start_if_needed():
     # ensure_for_users = set(ensure_for_users)
     is_running_for = is_go_to_bed_running(ensure_for_users)
     for user in ensure_for_users:
-        logger.info("starting for: %s on display %s" % (user, 
-                                                        user['x11-display']))
+        if user['user'] in is_running_for:
+            logger.info("Already running for: %s", user)
+            continue
+        logger.info("starting for: %s", user)
         args = [
             'su',
             '-',
             user['user'],
             '-c',
-            """export DISPLAY='%s';
-               /usr/bin/go-to-bed.py --url '%s'
-            """ % (user['x11-display'], URL)
+            "/usr/bin/run-go-to-bed-as-user.sh %s %s %s" % (
+                pipes.quote(user['x11-display']),
+                pipes.quote(URL),
+                pipes.quote(user['user'])
+            )
         ]
+        logger.info("args:%s", args)
+
         
         dev_null = open("/dev/null","rw")
         subprocesses.append(
@@ -145,8 +154,8 @@ def start_if_needed():
 class App():
     def __init__(self):
         self.stdin_path = '/dev/null'
-        self.stdout_path = '/dev/tty'
-        self.stderr_path = '/dev/tty'
+        self.stdout_path = '/dev/null'
+        self.stderr_path = '/dev/null'
         self.pidfile_path =  '/var/run/go-to-bed.pid'
         self.pidfile_timeout = 5
             
@@ -177,6 +186,7 @@ if __name__ == "__main__":
     handler = logging.FileHandler("/var/log/go-to-bed.log")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    logger.info("Starting")
 
     for i, a in enumerate(sys.argv):
         if a == "--users" and len(sys.argv) > i:
@@ -186,19 +196,24 @@ if __name__ == "__main__":
 
             print "enusre_for:",users
             ensure_for = users
-
+            
         if a == "--url" and len(sys.argv) > i:
             URL = sys.argv[i+1]
             print "URL:",URL
+            
+
+    logger.info("go-to-bed gui client will start for users:%s", ensure_for)
+    logger.info("go-to-bed will query the url:%s", URL)
+
 
     if "--run-once" in sys.argv:
         start_if_needed()
         sys.exit()
 
     app = App()
-    
 
     daemon_runner = runner.DaemonRunner(app)
     #This ensures that the logger file handle does not get closed during daemonization
     daemon_runner.daemon_context.files_preserve=[handler.stream]
     daemon_runner.do_action()
+    logger.info("Started")

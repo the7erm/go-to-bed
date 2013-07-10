@@ -17,6 +17,16 @@ from crontab import CronTab
 
 import gtk
 import gobject
+import logging
+import os
+
+logger = logging.getLogger("go-to-bed")
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler = logging.FileHandler(os.path.expanduser("~/.go-to-bed.log"))
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 
 class NotifyWindow(gtk.Window):
     def __init__(self, message="", keep_above=True, close_after=None, 
@@ -103,6 +113,7 @@ def send_logout(w=None):
 def connect(url, get={}, post={}):
     data = urllib.urlencode(get)
     full_url = url + '?' + data
+    logger.info("full_url:%s", full_url)
     print "full_url:",full_url
 
     try:
@@ -288,6 +299,8 @@ if "--url" in sys.argv:
     if _url and not _url.startswith("http:") and not _url.startswith("https:"):
         _url = "http://%s" % _url
     url = _url
+
+logger.info("Starting gui client:%s", url)
 
 while True:
     if cnt % 60 == 0:
