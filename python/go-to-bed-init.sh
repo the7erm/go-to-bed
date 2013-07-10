@@ -12,10 +12,10 @@
 #
 ### BEGIN INIT INFO
 # Provides:          go-to-bed
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
+# Required-Start:    $all
+# Required-Stop:     $all
 # Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
+# Default-Stop:      
 # Short-Description: Start daemon at boot time
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
