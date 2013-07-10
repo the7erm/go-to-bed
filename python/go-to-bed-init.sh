@@ -22,6 +22,7 @@
 
 USERS=""
 URL="http://localhost/go-to-bed/"
+PYTHON="/usr/bin/python"
 
 if [ -f "/etc/go-to-bed.conf" ]
 then
@@ -32,17 +33,17 @@ case "$1" in
   start)
     echo "Starting go-to-bed-daemon"
     # Start the daemon 
-    python /usr/bin/go-to-bed-daemon.py start --url $URL --users $USERS
+    $PYTHON /usr/bin/go-to-bed-daemon.py start --url $URL --users $USERS &>>/tmp/go-to-bed
     ;;
   stop)
     echo "Stopping go-to-bed-daemon"
     # Stop the daemon
-    python /usr/bin/go-to-bed-daemon.py stop
+    $PYTHON /usr/bin/go-to-bed-daemon.py stop &>>/tmp/go-to-bed
     ;;
   restart)
     echo "Restarting go-to-bed-daemon"
-    python /usr/bin/go-to-bed-daemon.py stop
-    python /usr/bin/go-to-bed-daemon.py start --url $URL --users $USERS
+    $PYTHON /usr/bin/go-to-bed-daemon.py stop
+    $PYTHON /usr/bin/go-to-bed-daemon.py start --url $URL --users $USERS &>>/tmp/go-to-bed
     ;;
   *)
     # Refuse to do other stuff
