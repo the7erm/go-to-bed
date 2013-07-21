@@ -1,17 +1,20 @@
 <?php
     include_once 'constants-required.php';
-
     include_once "header.tpl.php";
-
     ?>
-    <div id="tabs">
+    <div id="loading">Loading ...</div>
+    <?php
+      flush();
+      ob_flush();
+    ?>
+    <div id="tabs" style="display:none;">
       <ul>
         <li><a href="#tabs-1">Children</a></li>
         <li><a href="#tabs-2">Add Admin</a></li>
         <li><a href="#tabs-3">Add Child</a></li>
       </ul>
       <div id="tabs-1">
-        <div id="accordion">
+        <div id="accordion" style="display:none;">
           <h3>All</h3>
           <div>
             <form method="post">
@@ -33,7 +36,6 @@
           </div>
           <?php
               $buttons = '<input type="submit" value="Apply" name="submit">';
-
               foreach ($children->data as $name=>$child_data) {
                   $actions = '<input type="hidden" name="action" value="Apply Child Data">
                               <input type="hidden" name="old_name" value="'.ent($name).'">';
@@ -57,10 +59,14 @@
         ?>
       </div>
     </div>
+    <?php
+      ob_flush();
+    ?>
     <script type="text/javascript">
       $(function() {
-        
         $("#tabs").tabs();
+        
+        
         $("#accordion").accordion({collapsible: true, heightStyle: "content"});
         $('.date').datepicker();
         
@@ -83,7 +89,10 @@
               lang: 'en'
           });
         });
-        
+        $("#tabs").show('fast', function(){
+          $("#accordion").show('fast');
+        });
+        $("#loading").hide();
       });
     </script>
     <?php
