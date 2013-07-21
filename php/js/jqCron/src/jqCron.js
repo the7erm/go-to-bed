@@ -255,8 +255,9 @@ var jqCronDefaultSettings = {
 		
 		// get cron value
 		this.getCron = function(){
-			var period = _selectorPeriod.getValue();
-			var items = ['*', '*', '*', '*', '*'];
+			var period = _selectorPeriod.getValue(),
+				items = ['*', '*', '*', '*', '*'];
+
 			if(period == 'hour') {
 				items[0] = _selectorMins.getCronValue();
 			}
@@ -273,12 +274,14 @@ var jqCronDefaultSettings = {
 			if(period == 'week') {
 				items[4] = _selectorDow.getCronValue();
 			}
+			
 			return items.join(' ');
 		};
 		
 		// set cron (string like * * * * *)
 		this.setCron = function(str) {
 			if(!str) return;
+
 			try {
 				str = str.replace(/\s+/g, ' ').replace(/^ +/, '').replace(/ +$/, ''); // sanitize
 				var mask = str.replace(/[^\* ]/g, '-').replace(/-+/g, '-').replace(/ +/g, '');
@@ -553,7 +556,11 @@ var jqCronDefaultSettings = {
 		// get a correct string for cron
 		this.getCronValue = function(){
 			if(_value.length == 0) return '*';
-			var cron = [_value[0]], i, s = _value[0], c = _value[0], n = _value.length;
+			var cron = [_value[0]], 
+				i, 
+				s = _value[0], 
+				c = _value[0], 
+				n = _value.length;
 			for(i=1; i<n; i++) {
 				if(_value[i] == c+1) {
 					c = _value[i];
@@ -569,44 +576,52 @@ var jqCronDefaultSettings = {
 		
 		// set the cron value 
 		this.setCronValue = function(str) {
+			
 			var values = [], m ,i, n = str.length;
 			if(str !== '*') {
-				while(str != '') {
-					// test "*/n" expression
-					m = str.match(/^\*\/([0-9]+),?/);
-					if(m && m.length == 2) {
-						for(i=0; i<=59; i+=(m[1]|0)) {
-							values.push(i);
-						}
-						str = str.replace(m[0], '');
-					}
-					// test "a-b/n" expression
-					m = str.match(/^([0-9]+)-([0-9]+)\/([0-9]+),?/);
-					if(m && m.length == 4) {
-						for(i=(m[1]|0); i<=(m[2]|0); i+=(m[3]|0)) {
-							values.push(i);
-						}
-						str = str.replace(m[0], '');
-					}
-					// test "a-b" expression
-					m = str.match(/^([0-9]+)-([0-9]+),?/);
-					if(m && m.length == 3) {
-						for(i=(m[1]|0); i<=(m[2]|0); i++) {
-							values.push(i);
-						}
-						str = str.replace(m[0], '');
-					}
-					// test "c" expression
-					m = str.match(/^([0-9]+),?/);
-					if(m && m.length == 2) {
-						values.push(m[1]|0);
-						str = str.replace(m[0], '');
-					}
-					if(n == str.length) {
-						// something goes wrong in the expression
-						return ;
-					}
+				var parts = str.split(",");
+
+				for (var i2=0;i2<parts.length;i2++) {
+					str = parts[i2];
 					n = str.length;
+					while(str != '') {
+						// test "*/n" expression
+						m = str.match(/^\*\/([0-9]+),?/);
+						if(m && m.length == 2) {
+							for(i=0; i<=59; i+=(m[1]|0)) {
+								values.push(i);
+							}
+							str = str.replace(m[0], '');
+						}
+						// test "a-b/n" expression
+						m = str.match(/^([0-9]+)-([0-9]+)\/([0-9]+),?/);
+						if(m && m.length == 4) {
+							for(i=(m[1]|0); i<=(m[2]|0); i+=(m[3]|0)) {
+								values.push(i);
+							}
+							str = str.replace(m[0], '');
+						}
+						// test "a-b" expression
+						m = str.match(/^([0-9]+)-([0-9]+),?/);
+						if(m && m.length == 3) {
+							for(i=(m[1]|0); i<=(m[2]|0); i++) {
+								values.push(i);
+							}
+							str = str.replace(m[0], '');
+						}
+						// test "c" expression
+						m = str.match(/^([0-9]+),?/);
+						if(m && m.length == 2) {
+							values.push(m[1]|0);
+							str = str.replace(m[0], '');
+						}
+						if(n == str.length) {
+							// something goes wrong in the expression
+							console.log("something wrong with expression:",str);
+							return ;
+						}
+						n = str.length;
+					}
 				}
 			}
 			_self.setValue(values);
