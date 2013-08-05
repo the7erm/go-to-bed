@@ -1,7 +1,7 @@
 #! /bin/bash
 # Parts of this script were stolen from
 # http://www.gavinj.net/2012/06/building-python-daemon-process.html
-# Copyright (c) 2013 My Company.
+# Copyright (c) 2013 Eugene R. Miller
 # All rights reserved.
 #
 # Author: Eugene R. Miller, 2013

@@ -14,7 +14,6 @@ import time
 import sys
 import os
 import lockfile
-import pipes
 
 #third party libs
 from daemon import runner
@@ -131,19 +130,13 @@ def start_if_needed():
             continue
         logger.info("starting for: %s", user)
         args = [
-            'su',
-            '-',
-            user['user'],
-            '-c',
-            "/usr/bin/run-go-to-bed-as-user.sh %s %s %s" % (
-                pipes.quote(user['x11-display']),
-                pipes.quote(URL),
-                pipes.quote(user['user'])
-            )
+            '/usr/bin/go-to-bed.py',
+            '--user', user['user'],
+            '--url', URL,
+            '--display', user['x11-display']
         ]
         logger.info("args:%s", args)
 
-        
         dev_null = open("/dev/null","rw")
         subprocesses.append(
             subprocess.Popen(args, stdin=dev_null, 
@@ -189,7 +182,7 @@ if __name__ == "__main__":
     logger.info("Starting")
 
     for i, a in enumerate(sys.argv):
-        if a == "--users" and len(sys.argv) > i:
+        if a == "--users" and len(sys.argv) > i+1:
             users = sys.argv[i+1].split(",")
             for i, u in enumerate(users):
                 users[i] = u.strip()
@@ -197,7 +190,7 @@ if __name__ == "__main__":
             print "enusre_for:",users
             ensure_for = users
             
-        if a == "--url" and len(sys.argv) > i:
+        if a == "--url" and len(sys.argv) > i+1:
             URL = sys.argv[i+1]
             print "URL:",URL
             

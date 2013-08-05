@@ -7,6 +7,8 @@ import sys
 import subprocess
 import os
 import pprint
+import re
+import pwd
 
 import dateutil.parser
 
@@ -18,14 +20,7 @@ from crontab import CronTab
 import gtk
 import gobject
 import logging
-import os
 
-logger = logging.getLogger("go-to-bed")
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler = logging.FileHandler(os.path.expanduser("~/.go-to-bed.log"))
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 class NotifyWindow(gtk.Window):
@@ -277,28 +272,146 @@ def execute_cron(c):
         send_logout()
         sys.exit()
 
+def exe(cmd, shell=False):
+    try:
+        return subprocess.check_output(cmd, shell=shell).strip()
+    except subprocess.CalledProcessError, e:
+        logger.error("subprocess.CalledProcessError %s %s" % (e, cmd))
+    return ""
+
+def parse_etc_passwd():
+    fp = open("/etc/passwd","r")
+    user_map = {}
+    for l in fp:
+        parts = l.split( ":" )
+        user_map[parts[2]] = parts[0]
+
+    return user_map
+
+def parse_ck_list_sessions():
+    users = parse_etc_passwd()
+    try:
+        output = exe(['ck-list-sessions'])
+    except:
+        return {}
+    lines = output.split("\n")
+    session_name = ""
+    sessions = {}
+    for l in lines:
+        match_session = session_re.match(l)
+        if match_session:
+            session_name = match_session.group(1)
+            sessions[session_name] = {}
+            continue
+        match = var_val_re.search(l)
+        is_bool = False
+        if match is None:
+            match = var_val_bool_re.search(l)
+            if match is not None:
+                is_bool = True
+        if match is None:
+            continue
+        key = match.group(1)
+        value = match.group(2)
+        if is_bool:
+            if value == "TRUE":
+                value = True
+            if value == "FALSE":
+                value = False
+
+        if key == 'unix-user':
+            key = 'unix-uid'
+
+        sessions[session_name][key] = value
+
+        if key == 'unix-uid':
+            sessions[session_name]['unix-user'] = users[value]
+
+    return sessions
+
+
+def set_display(user):
+    display = ":0"
+    ck_list_sessions = parse_ck_list_sessions()
+    for name, session in ck_list_sessions.items():
+        if not session['is-local'] or not session['x11-display']:
+            continue
+        if session['unix-user'] == user:
+            display = session['unix-user']
+            print "display:",display
+    os.putenv('DISPLAY', display)
+    os.environ['DISPLAY'] = display
+
+def set_user(uid):
+    if uid.isdigit():
+        uid = int(uid)
+        uinfo = pwd.getpwuid(uid)
+    else:
+        uinfo = pwd.getpwnam(uid)
+
+    user, pw, uid, gid, gecos, home, shell = uinfo
+    set_display(user)
+    if os.getuid() != 0:
+        print "User must be root to change uid/gid"
+        return
+
+    os.putenv('USER', user)
+    os.putenv('SHELL', shell)
+    os.putenv('HOME', home)
+    os.setgid(gid)
+    os.setuid(uid)
+    os.environ['HOME'] = home
+    os.environ['SHELL'] = shell
+    os.environ['USER'] = user
+    os.environ['USERNAME'] = user
+    os.environ['UID'] = "%s" % uid
+    os.environ['GID'] = "%s" % gid
     
+
 cnt = 0
 url = "http://localhost/go-to-bed/"
 pp = pprint.PrettyPrinter(indent=4)
 active_crons = {}
 testing = False
+logger = logging.getLogger("go-to-bed")
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler = logging.FileHandler(os.path.expanduser("~/.go-to-bed.log"))
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+session_re = re.compile("(Session[0-9]+)\:")
+var_val_re = re.compile("\t(.*)\s\=\s\'(.*)\'")
+var_val_bool_re = re.compile("\t(.*)\s\=\s(TRUE|FALSE)")
+ps_re = re.compile("(\d+)\s(.*?)\s+(.*)")
 
 if "--test" in sys.argv:
     testing = True
     idx = sys.argv.index("--test")
-    if len(sys.argv) >= idx:
+    if len(sys.argv) > idx+1:
         testing = sys.argv[idx+1]
     print "testing:",testing
 
 if "--url" in sys.argv:
     _url = ""
     idx = sys.argv.index("--url")
-    if len(sys.argv) >= idx:
+    if len(sys.argv) > idx+1:
         _url = sys.argv[idx+1]
     if _url and not _url.startswith("http:") and not _url.startswith("https:"):
         _url = "http://%s" % _url
     url = _url
+
+if "--uid" in sys.argv:
+    idx = sys.argv.index("--uid")
+    if len(sys.argv) > idx+1:
+        uid = sys.argv[idx+1]
+        set_user(uid)
+
+if "--user" in sys.argv:
+    idx = sys.argv.index("--user")
+    if len(sys.argv) > idx:
+        uid = sys.argv[idx+1]
+        set_user(uid)
+
 
 logger.info("Starting gui client:%s", url)
 

@@ -4,9 +4,7 @@ git pull
 sudo cp -v ./go-to-bed-daemon.py /usr/bin/
 sudo cp -v ./go-to-bed.py /usr/bin/
 sudo cp -v ./run-go-to-bed-as-user.sh /usr/bin/
-sudo cp -v ./go-to-bed-init.sh /etc/init.d/go-to-bed
 sudo chmod +x /usr/bin/go-to-bed-daemon.py -c
-sudo chmod +x /usr/bin/run-go-to-bed-as-user.sh -c
 sudo chmod +x /usr/bin/go-to-bed.py -c
 sudo chmod +x /etc/init.d/go-to-bed -c
 
