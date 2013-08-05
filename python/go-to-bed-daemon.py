@@ -99,7 +99,7 @@ def is_go_to_bed_running(ensure_for_users):
             pid, user, cmd = match.groups()
             if user not in users:
                 continue
-            logger.info("checking:%s %s", user, cmd)
+            # logger.info("checking:%s %s", user, cmd)
             if cmd.startswith("/usr/bin/python") or cmd.startswith('python'):
                 logger.info("python:%s", cmd)
                 if "go-to-bed.py" in cmd:
@@ -164,6 +164,10 @@ class App():
             logger.error("Error message")
             """
             time.sleep(60)
+            for p in subprocesses:
+                poll = p.poll()
+                if poll is not None:
+                    p.kill()
 
     def shutdown(self):
         """Overrides Daemon().shutdown() with some clean up"""
