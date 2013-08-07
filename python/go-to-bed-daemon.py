@@ -168,14 +168,14 @@ class App():
             logger.error("Error message")
             """
             time.sleep(60)
-            logger.info("kill loop")
+            # logger.info("kill loop")
             for p in subprocesses:
                 poll = p.poll()
                 if poll is not None:
                     logger.info("exit code was:%s", poll)
                     logger.info("killing:%s", p)
                     p.kill()
-            logger.info("out of kill loop")
+            # logger.info("out of kill loop")
 
     def shutdown(self):
         """Overrides Daemon().shutdown() with some clean up"""
