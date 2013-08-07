@@ -21,6 +21,8 @@ import gtk
 import gobject
 import logging
 
+from logging.handlers import TimedRotatingFileHandler
+
 
 
 class NotifyWindow(gtk.Window):
@@ -373,9 +375,9 @@ testing = False
 logger = logging.getLogger("go-to-bed")
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler = logging.handlers.TimedRotatingFileHandler(os.path.expanduser("~/.go-to-bed.log"), 
-                                                    when="midnight",
-                                                    backupCount=20)
+handler = TimedRotatingFileHandler(os.path.expanduser("~/.go-to-bed.log"), 
+                                   when="midnight",
+                                   backupCount=20)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 session_re = re.compile("(Session[0-9]+)\:")

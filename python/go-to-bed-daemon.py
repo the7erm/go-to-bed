@@ -17,6 +17,7 @@ import lockfile
 
 #third party libs
 from daemon import runner
+from logging.handlers import TimedRotatingFileHandler
 
 pp = pprint.PrettyPrinter(indent=4)
 session_re = re.compile("(Session[0-9]+)\:")
@@ -184,12 +185,13 @@ class App():
 
 
 if __name__ == "__main__":
+    
     logger = logging.getLogger("go-to-bed" )
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler = logging.handlers.TimedRotatingFileHandler("/var/log/go-to-bed.log", 
-                                                        when="midnight", 
-                                                        backupCount=20)
+    handler = TimedRotatingFileHandler("/var/log/go-to-bed.log", 
+                                       when="midnight", 
+                                       backupCount=20)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.info("Starting")
