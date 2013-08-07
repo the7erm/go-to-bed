@@ -184,12 +184,7 @@ class App():
 
 
 if __name__ == "__main__":
-    
-    logFormatter = logging.Formatter('%(asctime)s %(message)s')
-    logHandler.setFormatter( logFormatter )
     logger = logging.getLogger("go-to-bed" )
-    logger.addHandler( logHandler )
-
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     handler = TimedRotatingFileHandler("/var/log/go-to-bed.log", 
