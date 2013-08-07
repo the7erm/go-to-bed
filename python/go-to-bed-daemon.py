@@ -187,9 +187,9 @@ if __name__ == "__main__":
     logger = logging.getLogger("go-to-bed" )
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler = TimedRotatingFileHandler("/var/log/go-to-bed.log", 
-                                       when="midnight", 
-                                       backupCount=20)
+    handler = logging.handlers.TimedRotatingFileHandler("/var/log/go-to-bed.log", 
+                                                        when="midnight", 
+                                                        backupCount=20)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.info("Starting")
