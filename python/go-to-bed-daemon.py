@@ -101,9 +101,9 @@ def is_go_to_bed_running(ensure_for_users):
                 continue
             # logger.info("checking:%s %s", user, cmd)
             if cmd.startswith("/usr/bin/python") or cmd.startswith('python'):
-                logger.info("python:%s", cmd)
+                # logger.info("python:%s", cmd)
                 if "go-to-bed.py" in cmd:
-                    logger.info("running_for:%s %s", user, cmd)                
+                    # logger.info("running_for:%s %s", user, cmd)
                     running_for.append(user)
     return running_for
 
@@ -126,7 +126,7 @@ def start_if_needed():
     is_running_for = is_go_to_bed_running(ensure_for_users)
     for user in ensure_for_users:
         if user['user'] in is_running_for:
-            logger.info("Already running for: %s", user)
+            # logger.info("Already running for: %s", user)
             continue
         logger.info("starting for: %s", user)
         args = [
@@ -138,11 +138,14 @@ def start_if_needed():
         logger.info("args:%s", args)
 
         dev_null = open("/dev/null","rw")
-        subprocesses.append(
-            subprocess.Popen(args, stdin=dev_null, 
-                               stdout=dev_null, 
-                               stderr=dev_null)
-        )
+        with open("/tmp/go-to-bed-stdout.txt", "wb") as out:
+            with open("/tmp/go-to-bed-stderr.txt", "wb") as err:
+                #subprocess.Popen("ls",stdout=out,stderr=err)
+                subprocesses.append(
+                    subprocess.Popen(args, stdin=None, 
+                                           stdout=None,
+                                           stderr=None)
+                )
 
 class App():
     def __init__(self):
@@ -164,10 +167,14 @@ class App():
             logger.error("Error message")
             """
             time.sleep(60)
+            logger.info("kill loop")
             for p in subprocesses:
                 poll = p.poll()
                 if poll is not None:
+                    logger.info("exit code was:%s", poll)
+                    logger.info("killing:%s", p)
                     p.kill()
+            logger.info("out of kill loop")
 
     def shutdown(self):
         """Overrides Daemon().shutdown() with some clean up"""
@@ -177,10 +184,17 @@ class App():
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger("go-to-bed")
+    
+    logFormatter = logging.Formatter('%(asctime)s %(message)s')
+    logHandler.setFormatter( logFormatter )
+    logger = logging.getLogger("go-to-bed" )
+    logger.addHandler( logHandler )
+
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler = logging.FileHandler("/var/log/go-to-bed.log")
+    handler = TimedRotatingFileHandler("/var/log/go-to-bed.log", 
+                                       when="midnight", 
+                                       backupCount=20)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.info("Starting")

@@ -60,19 +60,19 @@ class NotifyWindow(gtk.Window):
 
 
     def on_button_press_event(self, *args, **kwargs):
-        print "on_button_press_event:", args, kwargs
+        logger.info("on_button_press_event:%s, %s", args, kwargs)
         self.destroy()
         gtk.main_quit()
 
     def destroy_window(self, *args, **kwargs):
-        print "destroy_window:", args, kwargs
+        logger.info("destroy_window:%s %s", args, kwargs)
         self.destroy()
         gtk.main_quit()
         return False
 
 
     def ensure_above(self, *args, **kwargs):
-        print "ensure_above:", args, kwargs
+        logger.info("ensure_above:%s %s", args, kwargs)
         self.set_keep_above(True)
         return False
 
@@ -80,14 +80,14 @@ def exe(cmd, shell=False):
     try:
         return subprocess.check_output(cmd, shell=shell).strip()
     except subprocess.CalledProcessError, e:
-        print "subprocess.CalledProcessError %s %s" % (e, cmd)
+        logger.error("subprocess.CalledProcessError:%s %s", e, cmd)
     return ""
 
 def send_logout(w=None):
-    print "send_logout"
+    logger.info("send_logout")
 
     if testing:
-        print "exiting --test detected"
+        logger.info("exiting --test detected")
         sys.exit()
 
     qdbus = exe(["which", "qdbus"])
@@ -109,23 +109,21 @@ def connect(url, get={}, post={}):
     data = urllib.urlencode(get)
     full_url = url + '?' + data
     logger.info("full_url:%s", full_url)
-    print "full_url:",full_url
-
     try:
         req = urllib2.Request(full_url)
         response = urllib2.urlopen(req)
     except urllib2.HTTPError, e:
-        print "urllib2.HTTPError:",full_url,' ',e
+        logger.error("urllib2.HTTPError:%s %s", full_url, e)
         return {}
     except urllib2.URLError, e:
-        print "urllib2.URLError:",full_url,' ',e
+        logger.error("urllib2.URLError:%s %s", full_url, e)
         return {}
     the_page = response.read()
     try:
         res = json.loads(the_page)
     except ValueError, e:
-        print "ValueError:",e
-        print "Could not decode:",the_page
+        logger.error("ValueError:%s",e)
+        logger.error("Could not decode:%s",the_page)
         return {}
 
     return res
@@ -136,8 +134,7 @@ def check_url():
         values = {'status': testing}
     
     res = connect(url, values)
-    print "res: ",
-    pp.pprint(res)
+    logger.info("res:%s",pp.pformat(res))
     if not res:
         return
     parse_grounded(res)
@@ -184,7 +181,7 @@ def parse_messages(res, get):
     del get['status']
 
     for k, m in res['messages'].iteritems():
-        print m
+        logger.info("m:%s",m)
         window =  NotifyWindow(m)
         gtk.main()
         get['id'] = k
@@ -202,7 +199,7 @@ def parse_reminders(res):
         try:
             r['entry'] = CronTab(r['cron'])
         except ValueError, e:
-            print "ValueError: ",e, r['cron']
+            logger.error("ValueError:%s %s", e, r['cron'])
             continue
         r['next'] = r['entry'].next(now)
 
@@ -225,7 +222,7 @@ def parse_restriction(res):
     if not rule.has_key('start') or not rule.has_key('end'):
         return
 
-    pp.pprint(rule)
+    logger.info("%s", pp.pformat(rule))
 
     start = dateutil.parser.parse(rule['start'])
     end = dateutil.parser.parse(rule['end'])
@@ -338,7 +335,7 @@ def set_display(user):
             continue
         if session['unix-user'] == user:
             display = session['unix-user']
-            print "display:",display
+            logger.info("display:%s", display)
     os.putenv('DISPLAY', display)
     os.environ['DISPLAY'] = display
 
@@ -352,7 +349,7 @@ def set_user(uid):
     user, pw, uid, gid, gecos, home, shell = uinfo
     set_display(user)
     if os.getuid() != 0:
-        print "User must be root to change uid/gid"
+        logger.error("User must be root to change uid/gid")
         return
 
     os.putenv('USER', user)
@@ -376,7 +373,9 @@ testing = False
 logger = logging.getLogger("go-to-bed")
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler = logging.FileHandler(os.path.expanduser("~/.go-to-bed.log"))
+handler = TimedRotatingFileHandler(os.path.expanduser("~/.go-to-bed.log"), 
+                                   when="midnight",
+                                   backupCount=20)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 session_re = re.compile("(Session[0-9]+)\:")
@@ -389,7 +388,7 @@ if "--test" in sys.argv:
     idx = sys.argv.index("--test")
     if len(sys.argv) > idx+1:
         testing = sys.argv[idx+1]
-    print "testing:",testing
+    logger.info("testing:%s", testing)
 
 if "--url" in sys.argv:
     _url = ""
@@ -419,8 +418,7 @@ while True:
     if cnt % 60 == 0:
         cnt = 1
         check_url()
-
-    print "seconds since last check:",cnt
+    logger.info("seconds since last check:%s", cnt)
     cnt = cnt + 1
 
     for k, c in active_crons.items():
@@ -432,6 +430,7 @@ while True:
             now = datetime.datetime.now()
             next = c['entry'].next(now)
             active_crons[k]['next'] = next
-
+    sys.stdout.flush()
+    sys.stderr.flush()
     time.sleep(1)
 
