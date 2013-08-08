@@ -1,6 +1,9 @@
 #!/bin/bash
 
-git pull
+if [ "$1" != "--no-pull" ]
+then
+    git pull
+fi
 sudo cp -v ./go-to-bed-daemon.py /usr/bin/
 sudo cp -v ./go-to-bed.py /usr/bin/
 sudo cp -v ./go-to-bed-init.sh /etc/init.d/go-to-bed

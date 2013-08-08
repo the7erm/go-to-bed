@@ -223,5 +223,10 @@ if __name__ == "__main__":
     daemon_runner = runner.DaemonRunner(app)
     #This ensures that the logger file handle does not get closed during daemonization
     daemon_runner.daemon_context.files_preserve=[handler.stream]
-    daemon_runner.do_action()
-    logger.info("Started")
+    try:
+        daemon_runner.do_action()
+        logger.info("Started")
+    except runner.DaemonRunnerStopFailureError,e:
+        print "daemon.runner.DaemonRunnerStopFailureError:%s", e
+        logger.info("daemon.runner.DaemonRunnerStopFailureError:%s", e)
+    

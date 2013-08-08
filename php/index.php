@@ -24,6 +24,7 @@ if (isset($_GET['status'])) {
         0 === strpos($_SERVER['REMOTE_ADDR'], '192.168.')) {
         include_once CLASS_DIR."child.class.php";
         $children = new AllChildren();
+        header('Content-Type: application/json');
         echo json_encode($children->data["{$_GET['status']}"]);
     } else {
         header('HTTP/1.0 403 Forbidden');
