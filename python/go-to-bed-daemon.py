@@ -144,8 +144,8 @@ def start_if_needed():
                 #subprocess.Popen("ls",stdout=out,stderr=err)
                 subprocesses.append(
                     subprocess.Popen(args, stdin=None, 
-                                           stdout=None,
-                                           stderr=None)
+                                           stdout=out,
+                                           stderr=err)
                 )
 
 class App():

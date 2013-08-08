@@ -124,7 +124,7 @@ def connect(url, get={}, post={}):
         logger.error("urllib2.URLError:%s %s", full_url, e)
         return {}
     except:
-        logger.error("Unknown errror:%s", response )
+        logger.error("Unknown errror:%s", req)
         return {}
     the_page = response.read()
     try:
