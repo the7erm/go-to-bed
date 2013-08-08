@@ -111,14 +111,20 @@ def connect(url, get={}, post={}):
     data = urllib.urlencode(get)
     full_url = url + '?' + data
     logger.info("full_url:%s", full_url)
+
     try:
         req = urllib2.Request(full_url)
+        proxy_handler = urllib2.ProxyHandler({})
+        req.set_proxy(proxy_handler)
         response = urllib2.urlopen(req)
     except urllib2.HTTPError, e:
         logger.error("urllib2.HTTPError:%s %s", full_url, e)
         return {}
     except urllib2.URLError, e:
         logger.error("urllib2.URLError:%s %s", full_url, e)
+        return {}
+    except:
+        logger.error("Unknown errror:%s", response )
         return {}
     the_page = response.read()
     try:
