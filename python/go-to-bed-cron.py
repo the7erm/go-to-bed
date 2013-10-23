@@ -2,6 +2,7 @@
 import subprocess
 import pprint
 import re
+import os
 
 pp = pprint.PrettyPrinter(indent=4)
 session_re = re.compile("(Session[0-9]+)\:")
