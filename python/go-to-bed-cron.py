@@ -74,7 +74,10 @@ dms = [
     '/etc/init.d/lightdm',
     '/etc/init.d/gdm'
 ]
-for s in xsessions:
+print xsessions
+for x in xsessions:
+    s = xsessions[x]
+    print "s:",s
     if s['unix-user'] in ('sam', 'halle'):
         for dm in dms:
             if os.path.exists(dm):
