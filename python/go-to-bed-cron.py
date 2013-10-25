@@ -10,7 +10,6 @@ var_val_re = re.compile("\t(.*)\s\=\s\'(.*)\'")
 var_val_bool_re = re.compile("\t(.*)\s\=\s(TRUE|FALSE)")
 ps_re = re.compile("(\d+)\s(.*?)\s+(.*)")
 ensure_for = ['sam', 'halle', 'elijah']
-URL = "http://localhost/go-to-bed/"
 
 def exe(cmd, shell=False):
     try:
@@ -83,7 +82,4 @@ for x in xsessions:
     if s['unix-user'] in ('sam', 'halle'):
         for dm in dms:
             if os.path.exists(dm):
-                basename = os.path.basename(dm)
-                is_running = exe("ps -Af | grep %s | grep -v grep" % (basename,), shell=True)
-                if is_running:
-                    exe([dm, "restart"])
+                exe([dm, "restart"])
