@@ -106,5 +106,9 @@ for x in xsessions:
                     fp.write("output:%s\n", output)
                 else:
                     fp.write("!running %s\n", (basename,))
+                    cmd = "/usr/sbin/service %s start" % (basename,)
+                    fp.write("cmd:%s\n" % cmd)
+                    output = exe(cmd, shell=True)
+                    fp.write("output:%s\n", output)
 
 fp.close()
