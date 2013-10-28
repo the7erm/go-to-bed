@@ -77,7 +77,7 @@ dms = [
 ]
 print xsessions
 fp = open("/tmp/go-to-bed-cron", "w")
-
+fp.write("%s" % pprint.pformat(xsessions))
 for x in xsessions:
     s = xsessions[x]
     print "s:",s
