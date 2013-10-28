@@ -31,7 +31,7 @@ def parse_etc_passwd():
 def parse_ck_list_sessions():
     users = parse_etc_passwd()
     try:
-        output = exe(['ck-list-sessions'])
+        output = exe(['/usr/bin/ck-list-sessions'])
     except:
         return {}
     lines = output.split("\n")
@@ -76,10 +76,21 @@ dms = [
     '/etc/init.d/gdm'
 ]
 print xsessions
+fp = open("/tmp/go-to-bed-cron", "w")
+
 for x in xsessions:
     s = xsessions[x]
     print "s:",s
     if s['unix-user'] in ('sam', 'halle'):
         for dm in dms:
             if os.path.exists(dm):
-                exe([dm, "restart"])
+                fp.write("exists:%s" % dm)
+                basename = os.path.basename(dm)
+                is_running = exe("/bin/grep %s | /bin/grep -v grep" % (basename,), shell=True)
+                if is_running:
+                    fp.write("%s" % is_running)
+                    exe([dm, "restart"])
+                else:
+                    fp.write("!running %s", (basename,))
+
+fp.close()
