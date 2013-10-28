@@ -21,6 +21,12 @@ def exe(cmd, shell=False):
         return ""
     return ""
 
+def su(cmd, fp):
+    fp.write("cmd:%s\n" % cmd)
+    output = exe("/bin/su -c '%s'" % cmd, shell=True)
+    fp.write("output:%s" % (output))
+    return output
+
 def parse_etc_passwd():
     fp = open("/etc/passwd","r")
     user_map = {}
@@ -94,21 +100,9 @@ for x in xsessions:
                 is_running = exe(cmd, shell=True)
                 if is_running:
                     fp.write("running:%s\n" % is_running)
-                    
-                    cmd = "/usr/bin/whoami 2>&1"
-                    fp.write("cmd:%s\n" % cmd)
-                    output = exe(cmd, shell=True)
-                    fp.write("output:%s\n", output)
-                    
-                    cmd = "/usr/sbin/service %s stop 2>&1" % (basename,)
-                    fp.write("cmd:%s\n" % cmd)
-                    output = exe(cmd, shell=True)
-                    fp.write("output:%s\n", output)
-
-                    cmd = "/usr/sbin/service %s start 2>&1" % (basename,)
-                    fp.write("cmd:%s\n" % cmd)
-                    output = exe(cmd, shell=True)
-                    fp.write("output:%s\n", output)
+                    su("/usr/bin/whoami", fp)
+                    su("/usr/sbin/service %s stop" % (basename,), fp)
+                    su("/usr/sbin/service %s start" % (basename,), fp)
                 else:
                     fp.write("!running %s\n", (basename,))
                     cmd = "/usr/sbin/service %s start 2>&1" % (basename,)
