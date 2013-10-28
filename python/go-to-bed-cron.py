@@ -84,13 +84,13 @@ for x in xsessions:
     if s['unix-user'] in ('sam', 'halle'):
         for dm in dms:
             if os.path.exists(dm):
-                fp.write("exists:%s" % dm)
+                fp.write("exists:%s\n" % dm)
                 basename = os.path.basename(dm)
                 is_running = exe("/bin/grep %s | /bin/grep -v grep" % (basename,), shell=True)
                 if is_running:
-                    fp.write("%s" % is_running)
+                    fp.write("%s\n" % is_running)
                     exe([dm, "restart"])
                 else:
-                    fp.write("!running %s", (basename,))
+                    fp.write("!running %s\n", (basename,))
 
 fp.close()
