@@ -17,6 +17,8 @@ def exe(cmd, shell=False):
     except subprocess.CalledProcessError, e:
         # logger.error("subprocess.CalledProcessError %s %s" % (e, cmd))
         pass
+    except:
+        return ""
     return ""
 
 def parse_etc_passwd():
