@@ -99,6 +99,7 @@ for x in xsessions:
                     cmd = "/usr/bin/whoami"
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
+                    fp.write("output:%s\n", output)
                     cmd = "/usr/sbin/service %s start" % (basename,)
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
