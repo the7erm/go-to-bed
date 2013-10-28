@@ -91,7 +91,7 @@ for x in xsessions:
                 fp.write("cmd:%s\n" % cmd)
                 is_running = exe(cmd, shell=True)
                 if is_running:
-                    fp.write("%s\n" % is_running)
+                    fp.write("running:%s\n" % is_running)
                     output = exe([dm, "restart"])
                     fp.write("output:%s\n", output)
                 else:
