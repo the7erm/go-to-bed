@@ -87,7 +87,7 @@ for x in xsessions:
                 fp.write("exists:%s\n" % dm)
                 basename = os.path.basename(dm)
                 fp.write("basename:%s\n" % basename)
-                cmd = "/bin/grep %s | /bin/grep -v grep" % (basename,)
+                cmd = "/bin/ps -Af | /bin/grep %s | /bin/grep -v grep" % (basename,)
                 fp.write("cmd:%s\n" % cmd)
                 is_running = exe(cmd, shell=True)
                 if is_running:
