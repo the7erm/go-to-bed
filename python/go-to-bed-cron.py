@@ -91,12 +91,12 @@ for x in xsessions:
                 fp.write("cmd:%s\n" % cmd)
                 is_running = exe(cmd, shell=True)
                 if is_running:
-                    fp.write("running:%s\n" % is_running)
-                    cmd = "/usr/sbin/service %s stop" % (basename,)
-                    fp.write("cmd:%s\n" % cmd)
-                    output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
                     cmd = "/usr/bin/whoami"
+                    fp.write("cmd:%s\n" % cmd)
+                    output = exe(cmd, shell=True)
+                    fp.write("running:%s\n" % is_running)
+                    cmd = "/usr/sbin/service %s stop" % (basename,)
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
