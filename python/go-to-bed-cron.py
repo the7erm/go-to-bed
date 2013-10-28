@@ -24,7 +24,7 @@ def exe(cmd, shell=False):
 def su(cmd, fp):
     fp.write("cmd:%s\n" % cmd)
     output = exe("/bin/su -c '%s'" % cmd, shell=True)
-    fp.write("output:%s" % (output))
+    fp.write("output:%s\n" % (output))
     return output
 
 def parse_etc_passwd():
