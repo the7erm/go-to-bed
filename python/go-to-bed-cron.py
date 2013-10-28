@@ -92,11 +92,11 @@ for x in xsessions:
                 is_running = exe(cmd, shell=True)
                 if is_running:
                     fp.write("running:%s\n" % is_running)
-                    cmd = "/usr/sbin/service %s stop" % (dm,)
+                    cmd = "/usr/sbin/service %s stop" % (basename,)
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
-                    cmd = "/usr/sbin/service %s start" % (dm,)
+                    cmd = "/usr/sbin/service %s start" % (basename,)
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
