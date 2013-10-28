@@ -92,7 +92,9 @@ for x in xsessions:
                 is_running = exe(cmd, shell=True)
                 if is_running:
                     fp.write("running:%s\n" % is_running)
-                    output = exe("%s restart" % (dm,), shell=True)
+                    cmd = "%s restart" % (dm,)
+                    fp.write("cmd:%s\n", cmd)
+                    output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
                 else:
                     fp.write("!running %s\n", (basename,))
