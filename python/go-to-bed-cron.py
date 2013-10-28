@@ -93,24 +93,23 @@ for x in xsessions:
                 if is_running:
                     fp.write("running:%s\n" % is_running)
                     
-                    cmd = "/usr/bin/whoami"
+                    cmd = "/usr/bin/whoami 2>&1"
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
                     
-                    cmd = "/usr/sbin/service %s stop" % (basename,)
+                    cmd = "/usr/sbin/service %s stop 2>&1" % (basename,)
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
 
-                    fp.write("output:%s\n", output)
-                    cmd = "/usr/sbin/service %s start" % (basename,)
+                    cmd = "/usr/sbin/service %s start 2>&1" % (basename,)
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
                 else:
                     fp.write("!running %s\n", (basename,))
-                    cmd = "/usr/sbin/service %s start" % (basename,)
+                    cmd = "/usr/sbin/service %s start 2>&1" % (basename,)
                     fp.write("cmd:%s\n" % cmd)
                     output = exe(cmd, shell=True)
                     fp.write("output:%s\n", output)
